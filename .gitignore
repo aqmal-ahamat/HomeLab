@@ -1,0 +1,14 @@
+# Exclude project documentation from Git 📋
+project.md
+# Common Git ignores for homelab projects 🔧
+*.log
+*.tmp
+.env
+.env.local
+# OS generated files 💻
+.DS_Store
+Thumbs.db
+# IDE files 🛠️
+.vscode/
+.idea/
+*.swp
