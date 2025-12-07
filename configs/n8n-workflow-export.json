@@ -1,0 +1,224 @@
+{
+  "name": "Oracle Cloud ARM Instance Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 3
+            }
+          ]
+        }
+      },
+      "id": "trigger-schedule",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// 🚀 Oracle Cloud ARM Instance Automation with Proper API Authentication\n// Author: Aqmal\n// Purpose: Automated ARM instance provisioning with RSA-SHA256 signatures\n\nconst crypto = require('crypto');\n\n// --- 🛠️ CONFIGURATION ---\nconst config = {\n  // ⚠️ SECURITY NOTE: Use environment variables in production!\n  keyFingerprint: '79:81:11:00:42:a1:4a:25:b5:78:7a:38:8c:96:1f:a1',\n  \n  // ⚠️ SECURITY RISK: Private key should be stored securely!\n  privateKey: `-----BEGIN PRIVATE KEY-----\\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCWe6NrxYPr05Vu\\nqxlT8WVIsymuTPWsqMXYe3Z5CSqAyxntWQmMgONTWih2DGC0eBrxJ64PBziLvt7t\\ngHKlaoHEhSerV8zQtZ0ksUHbOYGvQnCt7mP1tV0S0N0vlK/FhJoM4UkVdSu8RINj\\nvWh60VCTh7XXG7oycE0iOtI483FtPO9jNbc/LmMtzVfs9aFreD/Qyx5OikJmIYqV\\nYJQA0cm91rHaCAo+xRDqzBBMskd8hrxEym3Zy1zUnGgvrpCkRDJYRQVRsZv00hRt\\nrTqm+bq4YhRi2ILx1/i6QBoeU+cJctEEat8327HfFYwvvhJ/2+uqeC17/pzJuYus\\n5qxIvpmnAgMBAAECggEAAu2pAnc3gqaoE8fp7ZjsUFExkHNtnHc0UmrPUA+o72oE\\nY9AFwDbfNZyy3jPjdd+Ydp+VDYnQbze+/X7bEZ5UTs9giZRjJ0nsIu39dWyrD2QK\\n7qI4Tmxsa+n7Q+pwI+HZYELKD0wrwQrRm7vwhTipiWrB/nZLAKGa0/2yYEAB3GRO\\n3a7WQboRUvHXUg/Vd0g4lmuheB/HlZ4i8bzkTxwO0DXNX70FG4sd+ZAJVpu7ecRj\\n5TV4UBFxzeYr2qw5uCNcpHb6H+hB6d78gfN3f90qp5hLBB3/4LEpLJo94+oj/wuR\\n7ODi5iNEcj6RM1ihlYrdhpDFpWuphYQHHQpS0llXEQKBgQDH5wxcRQosu0KZhGZT\\nJsSTiEhwxrVQCPSPorTbf0RfTeTwtSS7mkDmpnVRwQSRfS4/wSLcuGqIGXWbzigY\\ntwUMp6SIo+WuLPNUzLXKSfZ874oylzo61vAnCoVlaNd0uPAdVicbguzmCIzZpanT\\nsGd+CWQjMyokB17Aensg8MH5bQKBgQDAtkyyP8wUyfYD4ZHxcKh1SavIelU0ufhG\\nlQdg/JgjDohjBrL2NSHE9i9alebV8oaWsJywiYo1FIyNUMgYkrNH+6Smp7KsLrtX\\n/y6Mu+RbvdBD8BTZKY0degzoMt7SsgT7liXVTKcVq+jCNr4C9Rom87hUhEBo/957\\nOaAp67Fm4wKBgHutbE1N/ayNMvhOHQzHCIoKoF794cGhuMWBMgo3ZDLeu41dVVuo\\nZQ0O4bjyBYSKAWo6cPpEMsz/i28ZDl+0JDCfK8HKPVkUwHuvp61/Mzw667K/M6yh\\nvLU64itKwTqbDRvpaIqx5yWvFo213Ct3kaA96TGJ/0GJOcs2PCW2LxzFAoGAfDaE\\npPfeESBEBChmq1rUGhVMNkIznXKpBsWUJf1qCl6ZpkpxG6UPiSatSxQH36sc+RAJ\\nTvi4LpJ6LbP95WjZSfJ3JDw/PCA6/PMsC+YnwMJN9RxQM9FGddNvclMnsGKyN3+G\\nD0ADCkLuGhCy1LErFCRPkZpU8djKjF6OT7btd8UCgYASFV2AcFLKQPmA2kmJSQzs\\n9YraY6F4KC9biNrck4UKAsOj+PVTcRHjg5Vb8HAWacBWRxpc8uSE0V+AwDljzh8Q\\n+FuTguCtsS+thk/OvfdE5jHtPLuiE/E4To+W8429JawBX0T6thmFalCWs6TjLxFA\\nGxRFKMHjilKyPPbMzmclpw==\\n-----END PRIVATE KEY-----`,\n  \n  // Oracle Cloud Configuration\n  authUserId: 'ocid1.user.oc1..aaaaaaaa6ixgotcikbvjd3kwmt4jdarnwnpvbdfjzvqre5viuqmrme5rvehq',\n  tenancyId: 'ocid1.tenancy.oc1..aaaaaaaa5poehh7lh5g4xw4zlyhffyu5nueddbbkjqaz7f4xhnr6cfjbdtja',\n  imageId: 'ocid1.image.oc1.ap-mumbai-1.aaaaaaaarkpc5y2ufls3xeb4o6jh2wbmzzleklbkjkfvhxqcvwof5yf2l5gq',\n  region: 'ap-mumbai-1',\n  availabilityDomain: 'jDrP:AP-MUMBAI-1-AD-1',\n  subnetId: 'ocid1.subnet.oc1.ap-mumbai-1.aaaaaaaazf3e5ipmpap6ve2xfra2yo2ggalzleta6m2vsclrgt7esf6h3atq',\n  sshPublicKey: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDBmT+mPeDShh23tTR709bDmwlu/5qffMG36F2EPgRhovAfL4lyXmTvadnCf9kbTvd5+Viwucdvu5Ep3BkNY7HR1AyT6oL7SZK4cKU2GUQcCn5nCq9ZPJ1OL/ljJLdUnq1s/wld1ptDn8DHsmU7Wn4KHmLW4U5l1fYJNsdKos4erlr3kah9lF2YFfMklM4qXUncEZFccdotX0kfsElkr5zWdjLGF70Ucs9j/0DiTaaUtonHxV4UZNhbD8OO02wJ3rGE7yOmQI4pcrqe8mDjG3uFk9MCeZdUQ1pylkNetKnI6/ASBGhjA8XChCYdJggt4Sad5+7ixzZqy5/hfLNHWM5P ssh-key-2025-12-02'\n};\n\n// --- ⚙️ API REQUEST CONSTRUCTION ---\nconst requestBody = {\n  \"displayName\": `homelab-arm-${Date.now()}`,\n  \"compartmentId\": config.tenancyId,\n  \"shape\": \"VM.Standard.A1.Flex\",\n  \"shapeConfig\": { \"ocpus\": 4, \"memoryInGBs\": 24 },\n  \"availabilityDomain\": config.availabilityDomain,\n  \"createVnicDetails\": { \"subnetId\": config.subnetId, \"assignPublicIp\": false },\n  \"sourceDetails\": { \"sourceType\": \"image\", \"imageId\": config.imageId },\n  \"metadata\": { \"ssh_authorized_keys\": config.sshPublicKey.trim() }\n};\n\n// --- 🔐 CRYPTOGRAPHIC SIGNATURE GENERATION ---\nconst urlPath = \"/20160918/instances\";\nconst host = `iaas.${config.region}.oraclecloud.com`;\nconst bodyString = JSON.stringify(requestBody);\n\n// 1. Calculate Body Hash\nconst bodyHash = crypto.createHash('sha256').update(bodyString).digest('base64');\nconst contentLength = Buffer.byteLength(bodyString, 'utf8');\n\n// 2. Prepare Headers for Signing\nconst date = new Date().toUTCString();\nconst headersToSign = {\n  '(request-target)': `post ${urlPath}`,\n  'date': date,\n  'host': host,\n  'content-length': contentLength,\n  'content-type': 'application/json',\n  'x-content-sha256': bodyHash\n};\n\n// 3. Generate RSA-SHA256 Signature\nconst signString = Object.entries(headersToSign).map(([k, v]) => `${k}: ${v}`).join('\\n');\nconst signer = crypto.createSign('rsa-sha256');\nsigner.update(signString);\nconst signature = signer.sign(config.privateKey, 'base64');\n\n// 4. Build Authorization Header\nconst authHeader = `Signature version=\"1\",keyId=\"${config.tenancyId}/${config.authUserId}/${config.keyFingerprint}\",algorithm=\"rsa-sha256\",headers=\"(request-target) date host content-length content-type x-content-sha256\",signature=\"${signature}\"`;\n\n// 5. Generate Complete cURL Command\nconst curlCommand = `curl -v -X POST https://${host}${urlPath} \\\\\\n  -H 'Authorization: ${authHeader}' \\\\\\n  -H 'Date: ${date}' \\\\\\n  -H 'Host: ${host}' \\\\\\n  -H 'Content-Length: ${contentLength}' \\\\\\n  -H 'Content-Type: application/json' \\\\\\n  -H 'x-content-sha256: ${bodyHash}' \\\\\\n  -d '${bodyString}'`;\n\nreturn {\n  json: {\n    command: curlCommand,\n    requestBody: requestBody,\n    authHeader: authHeader,\n    timestamp: date,\n    bodyHash: bodyHash\n  }\n};",
+        "cwd": "",
+        "failOnStdErr": false
+      },
+      "id": "js-oci-signature",
+      "name": "Generate OCI API Request",
+      "type": "n8n-nodes-base.executeCode",
+      "typeVersion": 1,
+      "position": [
+        460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "command": "={{ $json.command }}",
+        "cwd": "",
+        "failOnStdErr": false
+      },
+      "id": "bash-oracle-api",
+      "name": "Execute Oracle API Call",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        680,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": [
+            {
+              "leftValue": "={{ $json.stderr }}",
+              "rightValue": "Out of host capacity",
+              "operation": "notContains"
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-success",
+      "name": "Check Success Condition",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        900,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.callmebot.com/whatsapp.php?phone=+1234567890&text=✅ Oracle ARM Instance Created Successfully! 🚀%0A%0AInstance Details:%0A- Name: homelab-arm-{{ $now }}%0A- Shape: VM.Standard.A1.Flex%0A- OCPUs: 4%0A- Memory: 24GB%0A- Region: Mumbai%0A%0ACheck Oracle Cloud Console for access details.",
+        "options": {}
+      },
+      "id": "whatsapp-notification",
+      "name": "Send WhatsApp Success",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1120,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.callmebot.com/whatsapp.php?phone=+1234567890&text=🔄 ARM Instance Check - Still Out of Capacity%0A%0ALatest Response: {{ $json.stderr }}%0A%0AContinuing automation... ⏳",
+        "options": {}
+      },
+      "id": "whatsapp-error",
+      "name": "Send Status Update",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1120,
+        400
+      ]
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Generate OCI API Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate OCI API Request": {
+      "main": [
+        [
+          {
+            "node": "Execute Oracle API Call",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Oracle API Call": {
+      "main": [
+        [
+          {
+            "node": "Check Success Condition",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Success Condition": {
+      "main": [
+        [
+          {
+            "node": "Send WhatsApp Success",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Status Update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "2.0.0",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "oracle-arm-automation-v2"
+  },
+  "id": "oracle-arm-instance-automation-v2",
+  "tags": [
+    {
+      "createdAt": "2025-12-07T12:00:00.000Z",
+      "updatedAt": "2025-12-07T12:00:00.000Z",
+      "id": "automation",
+      "name": "Automation"
+    },
+    {
+      "createdAt": "2025-12-07T12:00:00.000Z",
+      "updatedAt": "2025-12-07T12:00:00.000Z",
+      "id": "oracle-cloud",
+      "name": "Oracle Cloud"
+    },
+    {
+      "createdAt": "2025-12-07T12:00:00.000Z",
+      "updatedAt": "2025-12-07T12:00:00.000Z",
+      "id": "arm-instance",
+      "name": "ARM Instance"
+    },
+    {
+      "createdAt": "2025-12-07T12:00:00.000Z",
+      "updatedAt": "2025-12-07T12:00:00.000Z",
+      "id": "oci-api",
+      "name": "OCI API"
+    },
+    {
+      "createdAt": "2025-12-07-07T12:00:00.000Z",
+      "updatedAt": "2025-12-07T12:00:00.000Z",
+      "id": "cryptography",
+      "name": "Cryptography"
+    }
+  ]
+}
+
+# ========================================
+# SECURITY NOTE: 
+# This is a template workflow for demonstration purposes.
+# 
+# BEFORE USING IN PRODUCTION:
+# 1. Replace all hardcoded credentials with environment variables
+# 2. Implement proper authentication for n8n interface
+# 3. Add SSL/TLS encryption
+# 4. Set up proper error handling and logging
+# 5. Implement rate limiting and retry logic
+# 6. Add monitoring and alerting
+#
+# ENVIRONMENT VARIABLES TO SET:
+# - OCI_API_KEY: Your Oracle Cloud API key
+# - OCI_TENANT_ID: Your Oracle Cloud tenant ID
+# - OCI_COMPARTMENT_ID: Target compartment ID
+# - OCI_AVAILABILITY_DOMAIN: Target availability domain
+# - OCI_IMAGE_ID: ARM instance image ID
+# - OCI_SUBNET_ID: Target subnet ID
+# - WHATSAPP_PHONE: Your phone number for notifications
+#
+# ========================================

@@ -1,0 +1,110 @@
+version: '3.8'
+
+# n8n Docker Compose Configuration
+# Part of Aqmal's Hybrid Cloud Homelab Project
+# Purpose: n8n automation server for Oracle Cloud ARM instance provisioning
+
+services:
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n-automation-hub
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+    environment:
+      # Core Configuration
+      - N8N_HOST=0.0.0.0
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      
+      # Security Configuration (Production Recommended)
+      # Uncomment these lines for production deployment
+      # - N8N_BASIC_AUTH_ACTIVE=true
+      # - N8N_BASIC_AUTH_USER=admin
+      # - N8N_BASIC_AUTH_PASSWORD=${N8N_ADMIN_PASSWORD}
+      
+      # Database Configuration (Optional)
+      # - DB_TYPE=postgresdb
+      # - DB_POSTGRESDB_HOST=postgres
+      # - DB_POSTGRESDB_PORT=5432
+      # - DB_POSTGRESDB_DATABASE=n8n
+      # - DB_POSTGRESDB_USER=n8n
+      # - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD}
+      
+      # Workflow Configuration
+      - N8N_DEFAULT_BINARY_DATA_MODE=filesystem
+      - N8N_EXECUTIONS_DATA_MAX_AGE=168  # 7 days
+      - N8N_EXECUTIONS_DATA_SAVE_ON_ERROR=all
+      - N8N_EXECUTIONS_DATA_SAVE_ON_SUCCESS=all
+      - N8N_METRICS=true
+      
+      # Security & Performance
+      - N8N_SECURE_COOKIE=false  # Set to true with HTTPS
+      - N8N_HOST_WHITELIST=0.0.0.0/0  # Restrict in production
+      - N8N_LOG_LEVEL=info
+      
+    volumes:
+      # Data Persistence (Uncomment for production)
+      # - n8n_data:/home/node/.n8n
+      
+      # Configuration Files
+      # - ./configs/n8n:/home/node/.n8n/configs
+      
+    networks:
+      - n8n-network
+      
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5678/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Optional: PostgreSQL Database (Uncomment for production)
+  # postgres:
+  #   image: postgres:15-alpine
+  #   container_name: n8n-postgres
+  #   restart: unless-stopped
+  #   environment:
+  #     - POSTGRES_DB=n8n
+  #     - POSTGRES_USER=n8n
+  #     - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   networks:
+  #     - n8n-network
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U n8n"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+
+  # Optional: Nginx Reverse Proxy (Uncomment for production)
+  # nginx:
+  #   image: nginx:alpine
+  #   container_name: n8n-nginx
+  #   restart: unless-stopped
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+  #     - ./nginx/ssl:/etc/nginx/ssl:ro
+  #   depends_on:
+  #     - n8n
+  #   networks:
+  #     - n8n-network
+
+networks:
+  n8n-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+# Data Volumes (Uncomment for production)
+# volumes:
+#   n8n_data:
+#     driver: local
+#   postgres_data:
+#     driver: local
