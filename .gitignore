@@ -1,5 +1,7 @@
 # Exclude project documentation from Git 📋
 project.md
+opencode_sessions/
+daily_logs/
 # Common Git ignores for homelab projects 🔧
 *.log
 *.tmp
