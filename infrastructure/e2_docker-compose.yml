@@ -1,47 +1,35 @@
 version: '3.8'
 
-# n8n Docker Compose Configuration
+# Oracle Cloud E2 Docker Compose Configuration
 # Part of Aqmal's Hybrid Cloud Homelab Project
-# Purpose: n8n automation server for Oracle Cloud ARM instance provisioning
+# Purpose: n8n automation server with Caddy reverse proxy for automatic HTTPS
 
 services:
   n8n:
     image: n8nio/n8n:latest
     container_name: n8n-automation-hub
     restart: unless-stopped
-    ports:
-      - "5678:5678"
+    expose:
+      - "5678"
     environment:
       # Core Configuration
       - N8N_HOST=0.0.0.0
       - N8N_PORT=5678
-      - N8N_PROTOCOL=http
+      - N8N_PROTOCOL=https  # Updated for HTTPS behind reverse proxy
+      - N8N_EXECUTIONS_DATA_SAVE_ON_ERROR=all
+      - N8N_EXECUTIONS_DATA_SAVE_ON_SUCCESS=all
+      - N8N_METRICS=true
       
       # Security Configuration (Production Recommended)
       # Uncomment these lines for production deployment
       # - N8N_BASIC_AUTH_ACTIVE=true
       # - N8N_BASIC_AUTH_USER=admin
-      # - N8N_BASIC_AUTH_PASSWORD=${N8N_ADMIN_PASSWORD}
-      
-      # Database Configuration (Optional)
-      # - DB_TYPE=postgresdb
-      # - DB_POSTGRESDB_HOST=postgres
-      # - DB_POSTGRESDB_PORT=5432
-      # - DB_POSTGRESDB_DATABASE=n8n
-      # - DB_POSTGRESDB_USER=n8n
-      # - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD}
+      # - N8N_BASIC_AUTH_PASSWORD=secure-password
       
       # Workflow Configuration
       - N8N_DEFAULT_BINARY_DATA_MODE=filesystem
       - N8N_EXECUTIONS_DATA_MAX_AGE=168  # 7 days
-      - N8N_EXECUTIONS_DATA_SAVE_ON_ERROR=all
-      - N8N_EXECUTIONS_DATA_SAVE_ON_SUCCESS=all
-      - N8N_METRICS=true
-      
-      # Security & Performance
-      - N8N_SECURE_COOKIE=false  # Set to true with HTTPS
-      - N8N_HOST_WHITELIST=0.0.0.0/0  # Restrict in production
-      - N8N_LOG_LEVEL=info
+      - N8N_SECURE_COOKIE=true  # Enabled for HTTPS
       
     volumes:
       # Data Persistence (Uncomment for production)
@@ -51,7 +39,7 @@ services:
       # - ./configs/n8n:/home/node/.n8n/configs
       
     networks:
-      - n8n-network
+      - n8n-internal
       
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5678/healthz"]
@@ -59,6 +47,29 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: caddy-reverse-proxy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./e2_caddyfile:/etc/caddy/Caddyfile:ro
+      - e2_caddy_data:/data
+    networks:
+      - n8n-internal
+    depends_on:
+      - n8n
+
+networks:
+  n8n-internal:
+    driver: bridge
+
+  volumes:
+   e2_caddy_data:
+     driver: local
 
   # Optional: PostgreSQL Database (Uncomment for production)
   # postgres:

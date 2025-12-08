@@ -170,14 +170,20 @@ The JavaScript workflow implements enterprise-grade authentication:
 ## Security Considerations
 
 ### Current Implementation
-
 ⚠️ **Security Issues Identified**:
-
 - **High Risk**: RSA private key embedded in JavaScript code
 - **Exposure**: Public n8n interface without authentication
 - **Credentials**: API configuration values hardcoded
 - **Access**: Workflow accessible to anyone with domain access
 - **Compliance**: Private key storage violates security best practices
+
+✅ **Security Improvements Implemented**:
+- **TLS/HTTPS**: Automatic HTTPS via Caddy reverse proxy
+- **Certificates**: Let's Encrypt automatic certificate management
+- **HTTP Redirect**: Automatic HTTP to HTTPS redirection
+- **Security Headers**: HSTS, XSS protection, clickjacking prevention
+- **Compression**: Zstandard + gzip compression enabled
+- **Professional Setup**: Production-ready reverse proxy architecture
 
 ### Recommended Improvements
 
@@ -322,7 +328,6 @@ environment:
 - **Region**: in-mum-1 (Mumbai)
 
 ### Software Stack
-
 - **Operating System**: Ubuntu 24.04.3 LTS
 - **Container Runtime**: Docker Engine
 - **Orchestration**: Docker Compose
@@ -330,6 +335,9 @@ environment:
 - **Cryptography**: Node.js crypto module for RSA-SHA256 signatures
 - **API Integration**: Oracle Cloud Infrastructure REST API v2
 - **Authentication**: Enterprise-grade cryptographic request signing
+- **Reverse Proxy**: Caddy 2 with automatic HTTPS/TLS
+- **Certificates**: Let's Encrypt automatic certificate management
+- **Security**: Production-ready TLS termination and security headers
 
 ### Network Configuration
 
@@ -351,6 +359,24 @@ This project demonstrates advanced cloud engineering skills through creative pro
 - Documentation and knowledge sharing
 
 The automation system continues to run successfully, ready to provision resources when capacity becomes available, while serving as an impressive portfolio piece demonstrating real-world cloud engineering capabilities.
+
+## 🛡️ Security Implementation with Caddy
+
+### TLS/HTTPS Setup
+- **Automatic Certificates**: Let's Encrypt integration through Caddy
+- **HTTPS Only**: Automatic HTTP to HTTPS redirection
+- **Professional Security**: Production-ready TLS termination
+- **Security Headers**: HSTS, XSS protection, clickjacking prevention
+- **Compression**: Zstandard + gzip for performance
+
+### Architecture Benefits
+- **Reverse Proxy**: Caddy handles TLS/termination
+- **Load Balancing**: Ready for multiple backend services
+- **Certificate Management**: Automatic renewal and rotation
+- **Monitoring**: Built-in logging and metrics
+- **Scalability**: Easy to add additional services
+
+This implementation transforms the setup from development-grade to enterprise-ready production system with automatic security and certificate management.
 
 ---
 

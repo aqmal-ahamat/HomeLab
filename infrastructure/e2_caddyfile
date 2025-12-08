@@ -1,0 +1,46 @@
+# Caddy Reverse Proxy Configuration
+# Oracle Cloud E2 Instance - Automatic HTTPS for n8n
+# Part of Aqmal's Hybrid Cloud Homelab Project
+
+n8n.aqmal.site {
+    # Reverse proxy to n8n container
+    reverse_proxy localhost:5678 {
+        # Enable WebSocket support for n8n
+        header_up X-Forwarded-Proto {scheme}
+        header_up X-Forwarded-Host {host}
+        header_up X-Real-IP {remote_host}
+    }
+    
+    # Security headers
+    header {
+        # HSTS
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        # Prevent clickjacking
+        X-Frame-Options "DENY"
+        # Prevent MIME type sniffing
+        X-Content-Type-Options "nosniff"
+        # XSS Protection
+        X-XSS-Protection "1; mode=block"
+        # Referrer policy
+        Referrer-Policy "strict-origin-when-cross-origin"
+    }
+    
+    # Enable compression
+    encode zstd gzip
+    
+    # Log configuration
+    log {
+        output file /var/log/caddy/n8n.log
+        format json
+    }
+}
+
+# HTTP to HTTPS redirect (automatic)
+:80 {
+    redir https://{host}{uri}
+}
+
+# Health check endpoint for monitoring
+:443 {
+    respond /health "OK" 200
+}
